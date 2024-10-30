@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string>co.liuwei.alfred.encode-decode</string>
+	<key>category</key>
+	<string>liuwei</string>
+	<key>connections</key>
+	<dict>
+		<key>1D4A7A12-A807-4B1D-9487-E3D92EEA30DD</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>E1018F20-6855-425E-AD36-AB69F96AD8A9</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>E1018F20-6855-425E-AD36-AB69F96AD8A9</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>D94B24FE-7893-43C0-BD11-F5D66526786F</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+	</dict>
+	<key>createdby</key>
+	<string>liu wei</string>
+	<key>description</key>
+	<string>从剪切板快速编解码</string>
+	<key>disabled</key>
+	<false/>
+	<key>name</key>
+	<string>编码 &amp; 解码</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<true/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>keyword</key>
+				<string>coding</string>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<true/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string></string>
+				<key>script</key>
+				<string>#!/bin/bash
+
+# Output options for base64 and URL encode/decode
+cat &lt;&lt; EOB
+{
+  "items": [
+    {
+      "title": "Base64 Encode",
+      "arg": "base64_encode",
+      "subtitle": "Encode clipboard content to Base64",
+      "icon": {
+        "path": "icon.png"
+      }
+    },
+    {
+      "title": "Base64 Decode",
+      "arg": "base64_decode",
+      "subtitle": "Decode clipboard content from Base64",
+      "icon": {
+        "path": "icon.png"
+      }
+    },
+    {
+      "title": "URL Encode",
+      "arg": "url_encode",
+      "subtitle": "Encode clipboard content to URL format",
+      "icon": {
+        "path": "icon.png"
+      }
+    },
+    {
+      "title": "URL Decode",
+      "arg": "url_decode",
+      "subtitle": "Decode clipboard content from URL format",
+      "icon": {
+        "path": "icon.png"
+      }
+    }
+  ]
+}
+EOB
+</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>subtext</key>
+				<string>Encoding and decoding</string>
+				<key>title</key>
+				<string>编码 / 解码</string>
+				<key>type</key>
+				<integer>0</integer>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>1D4A7A12-A807-4B1D-9487-E3D92EEA30DD</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<false/>
+				<key>removeextension</key>
+				<false/>
+				<key>text</key>
+				<string></string>
+				<key>title</key>
+				<string></string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>D94B24FE-7893-43C0-BD11-F5D66526786F</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>script</key>
+				<string>#!/bin/bash
+
+# Get clipboard content
+clipboard_content=$(pbpaste)
+
+# Choose operation based on argument
+case "$1" in
+  "base64_encode")
+    # Encode the clipboard content to Base64
+    result=$(echo -n "$clipboard_content" | base64)
+    ;;
+  "base64_decode")
+    # Decode the clipboard content from Base64
+    result=$(echo -n "$clipboard_content" | base64 --decode)
+    ;;
+  "url_encode")
+    # URL Encode the clipboard content
+    result=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$clipboard_content'''))")
+    ;;
+  "url_decode")
+    # URL Decode the clipboard content
+    result=$(python3 -c "import urllib.parse; print(urllib.parse.unquote('''$clipboard_content'''))")
+    ;;
+esac
+
+# Copy the result to clipboard
+echo -n "$result" | pbcopy
+
+# Output the result for Alfred feedback
+echo "$result"</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>E1018F20-6855-425E-AD36-AB69F96AD8A9</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string></string>
+	<key>uidata</key>
+	<dict>
+		<key>1D4A7A12-A807-4B1D-9487-E3D92EEA30DD</key>
+		<dict>
+			<key>xpos</key>
+			<real>190</real>
+			<key>ypos</key>
+			<real>200</real>
+		</dict>
+		<key>D94B24FE-7893-43C0-BD11-F5D66526786F</key>
+		<dict>
+			<key>xpos</key>
+			<real>510</real>
+			<key>ypos</key>
+			<real>200</real>
+		</dict>
+		<key>E1018F20-6855-425E-AD36-AB69F96AD8A9</key>
+		<dict>
+			<key>xpos</key>
+			<real>350</real>
+			<key>ypos</key>
+			<real>200</real>
+		</dict>
+	</dict>
+	<key>userconfigurationconfig</key>
+	<array/>
+	<key>webaddress</key>
+	<string>https://github.com/liuwei</string>
+</dict>
+</plist>
